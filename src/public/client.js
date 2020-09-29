@@ -1,8 +1,12 @@
-let store = {
+const { Map, List } = require("immutable");
+
+const store = Map({
+    roverInfo: {},
+    images: [],
     user: { name: "Student" },
     apod: '',
     rovers: ['Curiosity', 'Opportunity', 'Spirit'],
-}
+});
 
 // add our markup to the page
 const root = document.getElementById('root')
@@ -16,37 +20,29 @@ const render = async (root, state) => {
     root.innerHTML = App(state)
 }
 
-
 // create content
 const App = (state) => {
-    let { rovers, apod } = state
+    const data = state.toObject();
+
+    const roverInfo = data.roverInfo.toObject();
+    const images = data.images.toArray();
 
     return `
-        <header></header>
-        <main>
-            ${Greeting(store.user.name)}
-            <section>
-                <h3>Put things on the page!</h3>
-                <p>Here is an example section.</p>
-                <p>
-                    One of the most popular websites at NASA is the Astronomy Picture of the Day. In fact, this website is one of
-                    the most popular websites across all federal agencies. It has the popular appeal of a Justin Bieber video.
-                    This endpoint structures the APOD imagery and associated metadata so that it can be repurposed for other
-                    applications. In addition, if the concept_tags parameter is set to True, then keywords derived from the image
-                    explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds;
-                    but generally help with discoverability of relevant imagery.
-                </p>
-                ${ImageOfTheDay(apod)}
-            </section>
-        </main>
-        <footer></footer>
-    `
-}
+        <div id="apiOutput">
+            <div id="roverInfo">
+                ${displayRoverInfo(roverInfo)}
+            </div>
+            <div id="images">
+                ${displayImages(images)}
+            </div>
+        </div>
+    `;
+};
 
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
-    render(root, store)
-})
+    render(root, store);
+});
 
 // ------------------------------------------------------  COMPONENTS
 
@@ -94,12 +90,19 @@ const ImageOfTheDay = (apod) => {
 // ------------------------------------------------------  API CALLS
 
 // Example API call
-const getImageOfTheDay = (state) => {
-    let { apod } = state
-
-    fetch(`http://localhost:3000/apod`)
+const getRoverInfoAndImages = rover => {
+    fetch(`http://localhost:3000/rovers?rover=${rover}`)
         .then(res => res.json())
-        .then(apod => updateStore(store, { apod }))
-
-    return data
-}
+        .then(data => {
+            const photos = List(data.photos);
+            const { name, status, launch_date, landing_date } = data.photos[0].rover;
+            const roverInfo = Map({
+                name,
+                status,
+                launch_date,
+                landing_date
+        });
+        const images = List(photos.map(photo => photo.img_src))
+        updateStore(store, {roverInfo, images});
+    });
+};
