@@ -13,9 +13,19 @@
 
 <body>
     <main>
-        <div id="root">
-            <h1>Loading...</h1>
-        </div>
+        <header>
+            <h1>Data from Mars API</h1>
+            <h3>Please choose rover to select information from</h3>
+            <form id="form">
+                <select name="rovers" id="rovers">
+                    <option value="curiosity"></option>
+                    <option value="opportunity"></option>
+                    <option value="spirit"></option>
+                </select>
+                <input type="submit" value="Show Info" />
+            </form>
+        </header>
+        <div id="root"></div>
     </main>
 </body>
 <script src="/client.js"></script>

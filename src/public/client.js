@@ -1,23 +1,18 @@
-const { Map, List } = require("immutable");
-
-const store = Map({
-    roverInfo: {},
-    images: [],
-    user: { name: "Student" },
-    apod: '',
-    rovers: ['Curiosity', 'Opportunity', 'Spirit'],
+const store = Immutable.Map({
+    roverInfo: Immutable.Map({}),
+    images: []
 });
 
 // add our markup to the page
 const root = document.getElementById('root')
 
 const updateStore = (store, newState) => {
-    store = Object.assign(store, newState)
-    render(root, store)
+    store = store.merge(newState);
+    render(root, store);
 }
 
 const render = async (root, state) => {
-    root.innerHTML = App(state)
+    root.innerHTML = App(state);
 }
 
 // create content
@@ -39,6 +34,13 @@ const App = (state) => {
     `;
 };
 
+const form = document.getElementById('form');
+form.addEventListener('submit', e => {
+    e.preventDefault();
+    const select = document.getElementById('rovers');
+    const rover = select.options[select.selectedIndex].value;
+    getRoverInfoAndImages(rover);
+})
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
     render(root, store);
@@ -46,50 +48,36 @@ window.addEventListener('load', () => {
 
 // ------------------------------------------------------  COMPONENTS
 
-// Pure function that renders conditional information -- THIS IS JUST AN EXAMPLE, you can delete it.
-const Greeting = (name) => {
-    if (name) {
-        return `
-            <h1>Welcome, ${name}!</h1>
-        `
-    }
-
+const showRoverInfo = roverInfo => {
     return `
-        <h1>Hello!</h1>
-    `
-}
+      <div>
+        <p>Rover Name: ${roverInfo.name}</p>
+        <p>Launch Date: ${roverInfo.launch_date}</p>
+        <p>Landing Date: ${roverInfo.landing_date}</p>
+        <p>Status: ${roverInfo.status}</p>
+      </div>
+    `;
+  };
 
-// Example of a pure function that renders infomation requested from the backend
-const ImageOfTheDay = (apod) => {
-
-    // If image does not already exist, or it is not from today -- request it again
-    const today = new Date()
-    const photodate = new Date(apod.date)
-    console.log(photodate.getDate(), today.getDate());
-
-    console.log(photodate.getDate() === today.getDate());
-    if (!apod || apod.date === today.getDate() ) {
-        getImageOfTheDay(store)
-    }
-
-    // check if the photo of the day is actually type video!
-    if (apod.media_type === "video") {
-        return (`
-            <p>See today's featured video <a href="${apod.url}">here</a></p>
-            <p>${apod.title}</p>
-            <p>${apod.explanation}</p>
-        `)
+  const showImages = images => {
+    let imagesSliced;
+  
+    if (images.length > 6) {
+      imagesSliced = images.slice(0, 6);
     } else {
-        return (`
-            <img src="${apod.image.url}" height="350px" width="100%" />
-            <p>${apod.image.explanation}</p>
-        `)
+      imagesSliced = images;
     }
-}
+  
+    const imgs = imagesSliced.map(image => {
+      return `
+        <img src="${image}" height="200px" width="200px" />
+      `;
+    });
+    return imgs;
+  };
 
 // ------------------------------------------------------  API CALLS
 
-// Example API call
 const getRoverInfoAndImages = rover => {
     fetch(`http://localhost:3000/rovers?rover=${rover}`)
         .then(res => res.json())
