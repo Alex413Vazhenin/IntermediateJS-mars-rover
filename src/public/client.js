@@ -1,3 +1,7 @@
+const { Map, List } = require ('immutable');
+import './assets/stylesheets/index.css';
+import './assets/stylesheets/resets.css';
+
 const store = Immutable.Map({
     roverInfo: Immutable.Map({}),
     images: []
