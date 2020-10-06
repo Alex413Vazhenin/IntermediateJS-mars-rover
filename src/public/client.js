@@ -1,18 +1,15 @@
-const { Map, List } = require ('immutable');
-import './assets/stylesheets/index.css';
-import './assets/stylesheets/resets.css';
-
-const store = Immutable.Map({
-    roverInfo: Immutable.Map({}),
+const map = Immutable.Map({
+    rovers: ["curiosity", "opportunity", "spirit"],
+    roverData: [],
     images: []
 });
 
 // add our markup to the page
-const root = document.getElementById('root')
+const root = document.getElementById('root');
 
 const updateStore = (store, newState) => {
-    store = store.merge(newState);
-    render(root, store);
+    const newMap = store.merge(newState);
+    render(root, newMap);
 }
 
 const render = async (root, state) => {
@@ -20,7 +17,7 @@ const render = async (root, state) => {
 }
 
 // create content
-const App = (state) => {
+const App = state => {
     const data = state.toObject();
 
     const roverInfo = data.roverInfo.toObject();
@@ -45,14 +42,15 @@ form.addEventListener('submit', e => {
     const rover = select.options[select.selectedIndex].value;
     getRoverInfoAndImages(rover);
 })
+
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
-    render(root, store);
+    render(root, map);
 });
 
 // ------------------------------------------------------  COMPONENTS
 
-const showRoverInfo = roverInfo => {
+const displayRoverInfo = roverInfo => {
     return `
       <div>
         <p>Rover Name: ${roverInfo.name}</p>
@@ -63,7 +61,7 @@ const showRoverInfo = roverInfo => {
     `;
   };
 
-  const showImages = images => {
+  const displayImages = images => {
     let imagesSliced;
   
     if (images.length > 6) {
@@ -83,18 +81,10 @@ const showRoverInfo = roverInfo => {
 // ------------------------------------------------------  API CALLS
 
 const getRoverInfoAndImages = rover => {
-    fetch(`http://localhost:3000/rovers?rover=${rover}`)
+    fetch(`http://localhost:3000/rover/${rover}`)
         .then(res => res.json())
-        .then(data => {
-            const photos = List(data.photos);
-            const { name, status, launch_date, landing_date } = data.photos[0].rover;
-            const roverInfo = Map({
-                name,
-                status,
-                launch_date,
-                landing_date
+        .then((roverInfo) => {
+          updateStore(store, {roverInfo});
+          console.log(roverInfo);      
         });
-        const images = List(photos.map(photo => photo.img_src))
-        updateStore(store, {roverInfo, images});
-    });
 };
