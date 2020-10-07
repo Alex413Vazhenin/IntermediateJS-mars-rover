@@ -2,20 +2,20 @@ const map = Immutable.Map({
     apod: "",
     tab: "pod",
     rovers: ["curiosity", "opportunity", "spirit"],
-    roverData: [],
-    images: []
+    roverData: null,
+    roverPhotos: []
 });
 
 // add our markup to the page
 const root = document.getElementById('root');
 
-const updateStore = (storeData, newState) => {
-    const store = storeData.merge(newState);
+const updateStore = (storeParam, newState) => {
+    const store = storeParam.merge(newState);
     render(root, store);
 }
 
-const render = async (root, state) => {
-    root.innerHTML = App(state);
+const render = async (rootParam, state) => {
+    rootParam.innerHTML = App(state);
 }
 
 function setTab(tab) {
@@ -42,7 +42,7 @@ const getImageOfTheDay = state => {
   });
 };
 
-const getRoverInfoAndImages = (rover, state) => {
+const getRoverInfo = (rover, state) => {
     fetch(`http://localhost:3000/rover/`)
         .then(response => response.json())
         .then(r => {
@@ -57,10 +57,10 @@ const getRoverInfoAndImages = (rover, state) => {
           const { max_date: maxDate } = roversByName[rover];
           fetch(`http://localhost:3000/rover/${rover}/${maxDate}`)
             .then(response => response.json())
-            .then(images => {
+            .then(roverPhotos => {
               updateStore(state, {
                 roverData: roversByName[rover],
-                images: images.photos.map(photo => photo.img_src),
+                roverPhotos: roverPhotos.photos.map(photo => photo.img_src),
               });
             });
         });
@@ -102,9 +102,9 @@ const ImageOfTheDay = apod => {
 const RoverData = (rover, state) => {
   if (RoverData._called !== rover) {
     RoverData._called = rover;
-    getRoverData(rover, state);
+    getRoverInfo(rover, state);
   }
-  if (!state.get('roverData') || !state.get('images').size) {
+  if (!state.get('roverData') || !state.get('roverPhotos').size) {
     return `<h1>Loading...</h1>`;
   }
   return `
@@ -116,7 +116,7 @@ const RoverData = (rover, state) => {
         <li>Status ${state.getIn(['roverData', 'status'])}</li>
         <li>Most recent photos taken on ${state.getIn(['roverData', 'max_date'])}</li>
       </ul>
-      ${RoverImages(state.get('images').toJS())}
+      ${RoverImages(state.get('roverPhotos').toJS())}
       </div>
       `;
 };
@@ -135,7 +135,7 @@ const App = state => {
 
         ${
           activeRovers[0]
-          ? roverInfo(activeRovers[0].toLowerCase(), state) : ImageOfTheDay(apod)
+          ? RoverData(activeRovers[0].toLowerCase(), state) : ImageOfTheDay(apod)
         }
     `;
 };
@@ -144,16 +144,3 @@ const App = state => {
 window.addEventListener('load', () => {
     render(root, map);
 });
-
-
-
-// const displayRoverInfo = roverInfo => {
-//     return `
-//       <div>
-//         <p>Rover Name: ${roverInfo.name}</p>
-//         <p>Launch Date: ${roverInfo.launch_date}</p>
-//         <p>Landing Date: ${roverInfo.landing_date}</p>
-//         <p>Status: ${roverInfo.status}</p>
-//       </div>
-//     `;
-//   };
