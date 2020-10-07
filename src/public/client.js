@@ -1,4 +1,5 @@
 const map = Immutable.Map({
+    apod: "",
     rovers: ["curiosity", "opportunity", "spirit"],
     roverData: [],
     images: []
@@ -8,20 +9,24 @@ const map = Immutable.Map({
 const root = document.getElementById('root');
 
 const updateStore = (store, newState) => {
-    const newMap = store.merge(newState);
-    render(root, newMap);
+    const store = store.merge(newState);
+    render(root, store);
 }
 
 const render = async (root, state) => {
     root.innerHTML = App(state);
 }
 
+function setTab(tab) {
+  const store = map.set('tab', tab);
+  render(root, store);
+}
+
 // create content
 const App = state => {
-    const data = state.toObject();
-
-    const roverInfo = data.roverInfo.toObject();
-    const images = data.images.toArray();
+    const data = state.tojs();
+    const { rovers, tabs, apod } = data;
+    const activeRovers = rovers.filter(name => tabs === name.toLowerCase());
 
     return `
         <div id="apiOutput">
@@ -32,20 +37,17 @@ const App = state => {
                 ${displayImages(images)}
             </div>
         </div>
+
+        ${
+          activeRovers[0]
+          ? roverInfo(activeRovers[0].toLowerCase(), state) : ImageOfTheDay(apod)
+        }к
     `;
 };
 
-const form = document.getElementById('form');
-form.addEventListener('submit', e => {
-    e.preventDefault();
-    const select = document.getElementById('rovers');
-    const rover = select.options[select.selectedIndex].value;
-    getRoverInfoAndImages(rover);
-})
-
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
-    render(root, map);
+    render(root, store);
 });
 
 // ------------------------------------------------------  COMPONENTS
