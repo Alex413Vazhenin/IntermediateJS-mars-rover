@@ -14,6 +14,18 @@ app.use('/', express.static(path.join(__dirname, '../public')));
 
 // your API calls
 
+app.get('/rover', async (req, res) => {
+    const rovers = `https://api.nasa.gov/mars-photos/api/v1/rovers/?api_key=${process.env.API_KEY}`;
+    
+    try {
+        const nasaData = await fetch(rovers).then(response => response.json());
+
+        return res.send(nasaData);
+    } catch (err) {
+        console.log('error:', err);
+    }
+});
+
 app.get('/apod', async (req, res) => {
     try {
       const image = await fetch(
@@ -27,16 +39,5 @@ app.get('/apod', async (req, res) => {
     }
   });
 
-app.get('/rover', async (req, res) => {
-    const rovers = `https://api.nasa.gov/mars-photos/api/v1/rovers/?api_key=${process.env.API_KEY}`;
-    
-    try {
-        const roversData = await fetch(rovers).then(response => response.json());
-
-        return res.send(roversData);
-    } catch (err) {
-        console.log('error:', err);
-    }
-});
-
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
