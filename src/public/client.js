@@ -72,23 +72,8 @@ const ImageOfTheDay = apod => {
   const currentDate = new Date();
   const imageDate = new Date(apod.date);
   if (
-    (!apod || imageDate === currentDate.getDate()) && !ImageOfTheDay._imagesRequested) {
-      ImageOfTheDay._imagesRequested = true;
-      getImageOfTheDay(map);
-    }
-
-    if (!apod) {
-      return `<h1>Loading...</h1>`;
-    }
-    // check if the photo of the day is actually type video!
-    if (apod.media_type === 'video') {
-      return `
-        <div id="pod" class="tabcontent">
-          <p>See today's featured video <a href="${apod.image.url}">here</a></p>
-          <p>${apod.title}</p>
-          <p>${apod.explanation}</p>
-        </div>
-        `;
+    (!apod)) {
+      return `<h1>Click on tabs to recieve images</h1>`;
     }
 
     return `
@@ -128,7 +113,6 @@ const App = state => {
     const activeRovers = rovers.filter(name => tab === name.toLowerCase());
 
     return `
-      <button class="tablink" onclick="setTab('pod')">Image of the Day</button>
       <button class="tablink" onclick="setTab('curiosity')">Curiosity</button>
       <button class="tablink" onclick="setTab('opportunity')">Opportunity</button>
       <button class="tablink" onclick="setTab('spirit')">Spirit</button>
