@@ -1,4 +1,9 @@
 /* -------------------  MOBILE  --------------------- */
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: Arial;
+}
 
 body {
   display: flex;
@@ -7,32 +12,44 @@ body {
   min-height: 100vh;
 }
 
-header {
-  /* header styles */
-}
-
 main {
   flex: 1;
   padding: 20px;
 }
 
-footer {
-  /* footer styles */
+.tablink {
+  display: inline-block;
+  background-color: #555;
+  color: white;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  font-size: 16px;
+  width: 100%;
 }
 
-/* -------------------  TABLET  --------------------- */
+.tablink:hover {
+  background-color: #369ece;
+}
+
+/* -------------------  DESKTOP  --------------------- */
 @media (min-width: 768px) {
   /* use mobile */
-}
-
-/* -------------------  DESKTOP  -------------------- */
-
-@media (min-width: 1224px) {
-  /* use mobile */
-}
-
-/* -------------------  LARGE SCREENS  -------------- */
-
-@media (min-width: 1824px) {
-  /* use mobile */
+  .tablink {
+    background-color: #a1c4fd;
+    color: white;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    width: 33%;
+  }
+  .loader {
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    text-align: center;
+  }
 }
